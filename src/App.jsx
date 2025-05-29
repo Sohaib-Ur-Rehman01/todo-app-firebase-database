@@ -187,7 +187,16 @@ function App() {
                 <>
                   <Login />
                   <p>Don't have an account?</p>
-                  <span onClick={() => setShowLogin(false)}>Sign Up</span>
+                  <span
+                    onClick={() => setShowLogin(false)}
+                    style={{
+                      color: "blue",
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                    }}
+                  >
+                    Sign Up
+                  </span>
                 </>
               ) : (
                 <>
@@ -196,6 +205,11 @@ function App() {
                   <span
                     onClick={() => {
                       setShowLogin(true);
+                    }}
+                    style={{
+                      color: "blue",
+                      cursor: "pointer",
+                      textDecoration: "underline",
                     }}
                   >
                     Login
