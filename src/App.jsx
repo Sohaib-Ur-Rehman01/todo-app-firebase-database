@@ -1,4 +1,8 @@
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  // createUserWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 import { getDatabase, onValue, ref, set } from "firebase/database";
 import { app } from "./Components/firebase";
 import { useEffect, useState } from "react";
@@ -16,6 +20,7 @@ function App() {
   const [finishTodos, setFinishTodos] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -28,11 +33,12 @@ function App() {
     if (!user) return;
     const todoRef = ref(db, `users/${user.uid}/todos`);
     const finishTodosRef = ref(db, `users/${user.uid}/finishedTodos`);
+
     const handleError = (error) => {
       console.error(`Firebase read error: ${error}`);
       alert(`Firebase data read error: ${error.message}`);
     };
-    onValue(todoRef, (snapshot) => {
+    const todoUnSub = onValue(todoRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         setTodos(data);
@@ -40,7 +46,7 @@ function App() {
         setTodos([]);
       }
     });
-    onValue(
+    const finishUnSub = onValue(
       finishTodosRef,
       (snapshot) => {
         const data = snapshot.val();
@@ -52,6 +58,10 @@ function App() {
       },
       handleError
     );
+    return () => {
+      todoUnSub();
+      finishUnSub();
+    };
   }, [user]);
 
   const putData = () => {
@@ -145,6 +155,16 @@ function App() {
     setFinishTodos(updateDeleteFinishTodos);
     set(ref(db, `users/${user.uid}/finishedTodos`), updateDeleteFinishTodos);
   };
+  const handleSignOut = async () => {
+    try {
+      setTodos([]);
+      setFinishTodos([]);
+      await signOut(auth);
+    } catch (error) {
+      console.error("Error Signing Out", error);
+    }
+  };
+
   if (loading) {
     return (
       <>
@@ -163,11 +183,27 @@ function App() {
         <>
           <div className="auth-layout">
             <div className="auth-card">
-              <SignUp />
+              {showLogin ? (
+                <>
+                  <Login />
+                  <p>Don't have an account?</p>
+                  <span onClick={() => setShowLogin(false)}>Sign Up</span>
+                </>
+              ) : (
+                <>
+                  <SignUp />
+                  <p>Already have an account?</p>
+                  <span
+                    onClick={() => {
+                      setShowLogin(true);
+                    }}
+                  >
+                    Login
+                  </span>
+                </>
+              )}
             </div>
-            <div className="auth-card">
-              <Login />
-            </div>
+            <div className="auth-card"></div>
           </div>
         </>
       ) : (
@@ -197,7 +233,7 @@ function App() {
               putData={putData}
             />
           </div>
-          <button onClick={() => auth.signOut()} className="auth-button">
+          <button onClick={handleSignOut} className="auth-button">
             Log Out
           </button>
         </>

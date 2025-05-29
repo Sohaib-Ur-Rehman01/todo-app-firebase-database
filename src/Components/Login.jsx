@@ -23,6 +23,7 @@ const Login = () => {
           id="loginInput"
           onChange={(e) => setEmail(e.target.value)}
           value={email}
+          className="auth-input"
         />
         <input
           type="password"
