@@ -935,3 +935,19 @@ button:active {
   opacity: 0.5;
   cursor: not-allowed;
 }
+/* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Delete All button styling\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+.delete-all {
+  background-color: #ff4d4d;
+  color: white;
+  margin-top: 1rem;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.delete-all:hover {
+  background-color: #e60000;
+}

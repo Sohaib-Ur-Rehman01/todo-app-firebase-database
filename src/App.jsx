@@ -220,6 +220,13 @@ function App() {
       console.error("Error Signing Out", error);
     }
   };
+  const deleteAllTodos = () => {
+    setTodos([]);
+    setFinishTodos([]);
+    set(ref(db, `users/${user.uid}/todos`), []);
+    set(ref(db, `users/${user.uid}/finishedTodos`), []);
+    showError("All Todos Deleted Successfully");
+  };
 
   if (loading) {
     return (
@@ -312,6 +319,9 @@ function App() {
               currentPage={currentPage}
               paginate={paginate}
             />
+            <button onClick={deleteAllTodos} className="auth-button delete-all">
+              Delete All Todos. <small>Finished & Unfinished</small>
+            </button>
 
             <button onClick={handleSignOut} className="auth-button">
               Log Out
