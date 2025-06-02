@@ -2,15 +2,15 @@ import { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
 
-const SignUp = () => {
+const SignUp = ({ showError }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const handleSignUp = async () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      alert("Sign Up Successful!");
+      showError("Sign Up Successful!");
     } catch (error) {
-      alert(error.message);
+      showError(error.message);
     }
   };
   return (
@@ -29,11 +29,13 @@ const SignUp = () => {
           placeholder="Enter a strong password"
           id="passInput"
           onChange={(e) => setPassword(e.target.value)}
+          className="auth-input"
+          onKeyDown={(e) => (e.key === "Enter" ? handleSignUp() : null)}
         />
+        <button className="auth-button" onClick={handleSignUp}>
+          Sign Up
+        </button>
       </div>
-      <button className="auth-button" onClick={handleSignUp}>
-        Sign Up
-      </button>
     </>
   );
 };

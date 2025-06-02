@@ -13,6 +13,10 @@ import "./App.css";
 import Login from "./Components/Login";
 import SignUp from "./Components/SignUp";
 import { onAuthStateChanged } from "firebase/auth";
+import dayjs from "dayjs";
+import ErrorMessage from "./Components/ErrorBox";
+import PaginateTODOS from "./Components/Paginate";
+
 const db = getDatabase(app);
 const auth = getAuth(app);
 function App() {
@@ -21,7 +25,46 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [finishTodosSortOrder, setFinishTodosSortOrder] = useState("asc");
+  const [error, setError] = useState(null);
+  const [currentPage, SetCurrentPage] = useState(1);
+  const todosPerPage = 10;
+  const getCurrentTodos = () => {
+    const indexOfLastTodo = currentPage * todosPerPage;
+    const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
+    return sortedTodos.slice(indexOfFirstTodo, indexOfLastTodo);
+  };
+  const getCurrentFinishedTodos = () => {
+    const indexOfLastTodo = currentPage * todosPerPage;
+    const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
+    return sortedTodosCompletedTaskSection.slice(
+      indexOfFirstTodo,
+      indexOfLastTodo
+    );
+  };
+  const paginate = (pageNumber) => SetCurrentPage(pageNumber);
+  const showError = (message) => {
+    setError(message);
+    setTimeout(() => setError(null), 5000);
+  };
+  const toggleSortOrder = () => {
+    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
+  const togglefinishTodosSortOrder = () => {
+    setFinishTodosSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
+  const sortedTodos = [...todos].sort((a, b) => {
+    const dateA = dayjs(a.dueDate);
+    const dateB = dayjs(b.dueDate);
+    return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+  });
 
+  const sortedTodosCompletedTaskSection = [...finishTodos].sort((a, b) => {
+    const dateA = dayjs(a.finishedAt);
+    const dateB = dayjs(b.finishedAt);
+    return finishTodosSortOrder === "asc" ? dateA - dateB : dateB - dateA;
+  });
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -36,7 +79,7 @@ function App() {
 
     const handleError = (error) => {
       console.error(`Firebase read error: ${error}`);
-      alert(`Firebase data read error: ${error.message}`);
+      showError(`Firebase data read error: ${error.message}`);
     };
     const todoUnSub = onValue(todoRef, (snapshot) => {
       const data = snapshot.val();
@@ -63,6 +106,11 @@ function App() {
       finishUnSub();
     };
   }, [user]);
+  useEffect(() => {
+    if (todos.length > 0 || finishTodos.length > 0) {
+      SetCurrentPage(1);
+    }
+  }, [todos, finishTodos]);
 
   const putData = () => {
     if (!user) return;
@@ -70,11 +118,13 @@ function App() {
     set(ref(db, `users/${user.uid}/finishedTodos`), finishTodos);
   };
 
-  const addTodos = (inputText) => {
+  const addTodos = (inputText, userDueDate) => {
     if (!user || inputText.trim() === "") return;
     const newTodo = {
       id: Date.now(),
       text: inputText,
+      createdAt: dayjs().format(),
+      dueDate: userDueDate || dayjs().add(2, "seconds").format(),
     };
     const updatedTodos = [...todos, newTodo];
     setTodos(updatedTodos);
@@ -105,12 +155,19 @@ function App() {
       return todo.id === id;
     });
     if (!finishTask) return;
+    const now = dayjs();
+    const isLate = now.isAfter(dayjs(finishTask.dueDate));
     const updatedTodos = todos.filter((todo) => {
       return todo.id !== id;
     });
     const updatedFinishTodos = [
       ...finishTodos,
-      { ...finishTask, originalIndex: index },
+      {
+        ...finishTask,
+        originalIndex: index,
+        finishedLate: isLate,
+        finishedAt: now.format(),
+      },
     ];
     setTodos(updatedTodos);
     setFinishTodos(updatedFinishTodos);
@@ -185,39 +242,33 @@ function App() {
             <div className="auth-card">
               {showLogin ? (
                 <>
-                  <Login />
+                  <Login showError={showError} />
                   <p>Don't have an account?</p>
                   <span
                     onClick={() => setShowLogin(false)}
-                    style={{
-                      color: "blue",
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                    }}
+                    className="signuplogin"
                   >
                     Sign Up
                   </span>
                 </>
               ) : (
                 <>
-                  <SignUp />
+                  <SignUp showError={showError} />
                   <p>Already have an account?</p>
                   <span
                     onClick={() => {
                       setShowLogin(true);
                     }}
-                    style={{
-                      color: "blue",
-                      cursor: "pointer",
-                      textDecoration: "underline",
-                    }}
+                    className="signuplogin"
                   >
                     Login
                   </span>
                 </>
               )}
+              {error && (
+                <ErrorMessage message={error} onClose={() => setError(null)} />
+              )}
             </div>
-            <div className="auth-card"></div>
           </div>
         </>
       ) : (
@@ -231,25 +282,42 @@ function App() {
                 </div>
               </>
             )}
-            <Addtodos onAdd={addTodos} />
+            <Addtodos onAdd={addTodos} showError={showError} />
 
             <TodoList
-              todos={todos}
+              todos={getCurrentTodos()}
+              sortOrder={sortOrder}
+              ontoggleSort={toggleSortOrder}
               onDelete={deleteTodo}
               onUpdate={updateTodo}
               onFinish={finishTodo}
               putData={putData}
             />
+            <PaginateTODOS
+              todosPerPage={todosPerPage}
+              totalTodos={sortedTodos.length}
+              currentPage={currentPage}
+              paginate={paginate}
+            />
             <CompletedTasks
-              finishedTodos={finishTodos}
+              sortOrder={finishTodosSortOrder}
+              finishedTodos={getCurrentFinishedTodos()}
               onDelete={deleteFinishTodos}
               onUnfinish={unFinishTodo}
               putData={putData}
+              ontoggleSort={togglefinishTodosSortOrder}
             />
+            <PaginateTODOS
+              todosPerPage={todosPerPage}
+              totalTodos={sortedTodosCompletedTaskSection.length}
+              currentPage={currentPage}
+              paginate={paginate}
+            />
+
+            <button onClick={handleSignOut} className="auth-button">
+              Log Out
+            </button>
           </div>
-          <button onClick={handleSignOut} className="auth-button">
-            Log Out
-          </button>
         </>
       )}
     </>

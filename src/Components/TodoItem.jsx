@@ -1,8 +1,11 @@
 import { useState } from "react";
 import DeleteTodo from "./DeleteTodo";
+import dayjs from "dayjs";
 const TodoItem = ({ todo, onDelete, onUpdate, onFinish }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(todo.text);
+  const now = dayjs();
+  const isOverDue = now.isAfter(dayjs(todo.dueDate));
 
   const handlEdit = () => {
     setIsEditing(true);
@@ -22,7 +25,10 @@ const TodoItem = ({ todo, onDelete, onUpdate, onFinish }) => {
   };
   return (
     <>
-      <div className="todo-item" key={todo.id}>
+      <div
+        className={`todo-item ${isOverDue ? "overdue-item" : ""}`}
+        key={todo.id}
+      >
         {isEditing ? (
           <input
             type="text"
@@ -32,7 +38,20 @@ const TodoItem = ({ todo, onDelete, onUpdate, onFinish }) => {
             autoFocus
           />
         ) : (
-          <span>{todo.text}</span>
+          <>
+            <div className="todo-content">
+              <span className="todo-text">{todo.text}</span>
+              <div className="todo-meta">
+                <small>
+                  Created: {dayjs(todo.createdAt).format("MMM D,YYYY h:mm A")}
+                </small>
+                <br />
+                <small className={`due-date ${isOverDue ? "overdue" : ""}`}>
+                  Due:{dayjs(todo.dueDate).format("MMM D,YYYY h:mm A")}
+                </small>
+              </div>
+            </div>
+          </>
         )}
 
         <DeleteTodo
