@@ -74,9 +74,11 @@ const CompletedTasks = ({
               );
             })
           )}
-          <button onClick={ontoggleSort} className="sort-button">
-            Sort by Completed Time {sortOrder === "asc" ? "↑ Asc" : "↓ Desc"}
-          </button>
+          {finishedTodos.length > 0 && (
+            <button onClick={ontoggleSort} className="sort-button">
+              Sort by Completed Time {sortOrder === "asc" ? "↑ Asc" : "↓ Desc"}
+            </button>
+          )}
         </div>
       </div>
     </>

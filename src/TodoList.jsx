@@ -11,9 +11,11 @@ const TodoList = ({
     <>
       <div className="todo-list-header">
         <h2>Todos</h2>
-        <button className="sort-button" onClick={ontoggleSort}>
-          Sort by Due Date {sortOrder === "asc" ? "↑ Asc" : "↓ Desc"}
-        </button>
+        {todos.length > 0 && (
+          <button className="sort-button" onClick={ontoggleSort}>
+            Sort by Due Date {sortOrder === "asc" ? "↑ Asc" : "↓ Desc"}
+          </button>
+        )}
       </div>
       <div id="show-output">
         {todos.map((todo) => (

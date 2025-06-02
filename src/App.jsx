@@ -16,7 +16,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import dayjs from "dayjs";
 import ErrorMessage from "./Components/ErrorBox";
 import PaginateTODOS from "./Components/Paginate";
-
 const db = getDatabase(app);
 const auth = getAuth(app);
 function App() {

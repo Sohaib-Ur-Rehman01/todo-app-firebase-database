@@ -586,6 +586,7 @@ button:active {
 
 .todo-content {
   min-width: 0; /* Allows text truncation */
+  grid-column: 1;
 }
 /* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\lateFinishTodo\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
 
@@ -783,13 +784,17 @@ button:active {
 }
 
 .todo-text {
-  overflow-wrap: break-word;
   word-break: break-word;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .todo-actions {
-  align-self: flex-end;
-  margin-top: auto;
+  grid-column: 2;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  /* margin-top: auto; */
 }
 /* ////////////////////////////////////////sort button ///////////////////////////////// */
 .sort-button {
