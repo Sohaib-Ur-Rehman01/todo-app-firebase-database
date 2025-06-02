@@ -319,7 +319,7 @@ function App() {
               currentPage={currentPage}
               paginate={paginate}
             />
-            <button onClick={deleteAllTodos} className="auth-button delete-all">
+            <button onClick={deleteAllTodos} className="delete-all">
               Delete All Todos. <small>Finished & Unfinished</small>
             </button>
 
