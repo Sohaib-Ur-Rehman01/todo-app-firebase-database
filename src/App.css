@@ -1014,3 +1014,85 @@ button:active {
 .delete-all:hover::after {
   opacity: 1;
 }
+/* \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Manager Panal\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
+.manager-container {
+  padding: 24px;
+  background-color: #f7f9fb;
+  min-height: 100vh;
+}
+
+.manager-heading {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.assign-task-box,
+.task-list-box {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.assign-title,
+.task-list-heading {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: black;
+}
+
+.input-field {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  color: black;
+}
+
+.primary-button {
+  padding: 10px 16px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.task-item {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.task-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.task-info {
+  font-size: 13px;
+  color: #555;
+}
+
+.task-buttons {
+  margin-top: 8px;
+}
+
+.finish-button {
+  color: #10b981;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-right: 12px;
+}
+
+.delete-button {
+  color: #ef4444;
+  background: none;
+  border: none;
+  cursor: pointer;
+}

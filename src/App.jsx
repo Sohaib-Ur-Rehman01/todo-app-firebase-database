@@ -16,6 +16,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import dayjs from "dayjs";
 import ErrorMessage from "./Components/ErrorBox";
 import PaginateTODOS from "./Components/Paginate";
+import ManagerPanel from "./Components/ManagerPanel";
 const db = getDatabase(app);
 const auth = getAuth(app);
 function App() {
@@ -28,6 +29,7 @@ function App() {
   const [finishTodosSortOrder, setFinishTodosSortOrder] = useState("asc");
   const [error, setError] = useState(null);
   const [currentPage, SetCurrentPage] = useState(1);
+  const [userRole, setUserRole] = useState(null);
   const todosPerPage = 10;
   const getCurrentTodos = () => {
     const indexOfLastTodo = currentPage * todosPerPage;
@@ -67,6 +69,19 @@ function App() {
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        const roleRef = ref(db, `users/${currentUser.uid}/profile/role`);
+        onValue(roleRef, (snapshot) => {
+          const role = snapshot.val();
+          console.log(
+            "Fetch Role",
+            role,
+            "for Path ======>>",
+            `users/${currentUser.uid}/profile/role`
+          );
+          setUserRole(role);
+        });
+      }
       setLoading(false);
     });
     return () => unSubscribe();
@@ -248,7 +263,7 @@ function App() {
             <div className="auth-card">
               {showLogin ? (
                 <>
-                  <Login showError={showError} />
+                  <Login showError={showError} setUserRole={setUserRole} />
                   <p>Don't have an account?</p>
                   <span
                     onClick={() => setShowLogin(false)}
@@ -279,54 +294,59 @@ function App() {
         </>
       ) : (
         <>
-          <div className="container">
-            {user && (
+          {userRole === "manager" ? (
+            <ManagerPanel user={user} />
+          ) : (
+            <div className="container">
               <>
                 <div className="user-credentials">
                   <p className="userId">{`User Id: ${user.uid}`}</p>
-                  <h2 className="welcomeUser">{`Welcome: ${user.email}`}</h2>
+                  <h2 className="welcomeUser">{`Welcome: ${user.displayName}`}</h2>
+                  <h2 className="welcomeUser">{`User Email: ${user.email}`}</h2>
                 </div>
               </>
-            )}
-            <Addtodos onAdd={addTodos} showError={showError} />
 
-            <TodoList
-              todos={getCurrentTodos()}
-              sortOrder={sortOrder}
-              ontoggleSort={toggleSortOrder}
-              onDelete={deleteTodo}
-              onUpdate={updateTodo}
-              onFinish={finishTodo}
-              putData={putData}
-            />
-            <PaginateTODOS
-              todosPerPage={todosPerPage}
-              totalTodos={sortedTodos.length}
-              currentPage={currentPage}
-              paginate={paginate}
-            />
-            <CompletedTasks
-              sortOrder={finishTodosSortOrder}
-              finishedTodos={getCurrentFinishedTodos()}
-              onDelete={deleteFinishTodos}
-              onUnfinish={unFinishTodo}
-              putData={putData}
-              ontoggleSort={togglefinishTodosSortOrder}
-            />
-            <PaginateTODOS
-              todosPerPage={todosPerPage}
-              totalTodos={sortedTodosCompletedTaskSection.length}
-              currentPage={currentPage}
-              paginate={paginate}
-            />
-            <button onClick={deleteAllTodos} className="delete-all">
-              Delete All Todos. <small>Finished & Unfinished</small>
-            </button>
+              <Addtodos onAdd={addTodos} showError={showError} />
 
-            <button onClick={handleSignOut} className="auth-button">
-              Log Out
-            </button>
-          </div>
+              <TodoList
+                todos={getCurrentTodos()}
+                sortOrder={sortOrder}
+                ontoggleSort={toggleSortOrder}
+                onDelete={deleteTodo}
+                onUpdate={updateTodo}
+                onFinish={finishTodo}
+                putData={putData}
+              />
+              <PaginateTODOS
+                todosPerPage={todosPerPage}
+                totalTodos={sortedTodos.length}
+                currentPage={currentPage}
+                paginate={paginate}
+              />
+              <CompletedTasks
+                sortOrder={finishTodosSortOrder}
+                finishedTodos={getCurrentFinishedTodos()}
+                onDelete={deleteFinishTodos}
+                onUnfinish={unFinishTodo}
+                putData={putData}
+                ontoggleSort={togglefinishTodosSortOrder}
+              />
+              <PaginateTODOS
+                todosPerPage={todosPerPage}
+                totalTodos={sortedTodosCompletedTaskSection.length}
+                currentPage={currentPage}
+                paginate={paginate}
+              />
+              {todos.length > 0 || finishTodos.length > 0 ? (
+                <button onClick={deleteAllTodos} className="delete-all">
+                  Delete All Todos. <small>Finished & Unfinished</small>
+                </button>
+              ) : null}
+              <button onClick={handleSignOut} className="auth-button">
+                Log Out
+              </button>
+            </div>
+          )}
         </>
       )}
     </>
