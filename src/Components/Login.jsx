@@ -1,22 +1,47 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { getDatabase, get, ref } from "firebase/database";
+import { app } from "./firebase";
 import { auth } from "./firebase";
+import { toast } from "react-toastify";
 
+const db = getDatabase(app);
 const Login = ({ showError }) => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredentials = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredentials.user;
+      const snapshot = await get(ref(db, `users/${user.uid}/profile`));
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        setName(userData.name);
+        console.log("UserName from DB", userData.name);
+      }
       showError("Login Successful!");
+      toast.success("Login Successfully");
     } catch (error) {
       showError(error.message);
+      toast.error(error.message);
     }
   };
   return (
     <>
       <div className="auth-container">
         <h2>Login</h2>
+        <input
+          type="text"
+          placeholder="Enter Your Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="auth-input"
+        />
         <input
           type="email"
           placeholder="Enter Your Email"

@@ -1,0 +1,4 @@
+1. manager panel ki UI properly set krni h >>
+2. Manager panal login sign up functionality bug clear krny hn >>
+3.Manager Panal per all user which have sign up show them on manager panel >>
+5. Manger Panel task assigning functionality properly set krni h or usko user ki UI m  properly set krna h >>

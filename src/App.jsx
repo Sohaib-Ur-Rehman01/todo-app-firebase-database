@@ -3,7 +3,7 @@ import {
   // createUserWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { getDatabase, onValue, ref, set } from "firebase/database";
+import { getDatabase, onValue, ref, set, update } from "firebase/database";
 import { app } from "./Components/firebase";
 import { useEffect, useState } from "react";
 import Addtodos from "./Components/AddTodo";
@@ -16,6 +16,8 @@ import { onAuthStateChanged } from "firebase/auth";
 import dayjs from "dayjs";
 import ErrorMessage from "./Components/ErrorBox";
 import PaginateTODOS from "./Components/Paginate";
+import ManagerPanel from "./Components/ManagerPanel";
+import { motion } from "framer-motion";
 const db = getDatabase(app);
 const auth = getAuth(app);
 function App() {
@@ -28,6 +30,8 @@ function App() {
   const [finishTodosSortOrder, setFinishTodosSortOrder] = useState("asc");
   const [error, setError] = useState(null);
   const [currentPage, SetCurrentPage] = useState(1);
+  const [userRole, setUserRole] = useState(null);
+  const [managerTasks, setManagerTasks] = useState([]);
   const todosPerPage = 10;
   const getCurrentTodos = () => {
     const indexOfLastTodo = currentPage * todosPerPage;
@@ -67,6 +71,19 @@ function App() {
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        const roleRef = ref(db, `users/${currentUser.uid}/profile/role`);
+        onValue(roleRef, (snapshot) => {
+          const role = snapshot.val();
+          console.log(
+            "Fetch Role",
+            role,
+            "for Path ======>>",
+            `users/${currentUser.uid}/profile/role`
+          );
+          setUserRole(role);
+        });
+      }
       setLoading(false);
     });
     return () => unSubscribe();
@@ -103,6 +120,37 @@ function App() {
     return () => {
       todoUnSub();
       finishUnSub();
+    };
+  }, [user]);
+  useEffect(() => {
+    if (!user) return;
+
+    const userTodosRef = ref(db, `users/${user.uid}/todos`);
+    const finishTodosRef = ref(db, `users/${user.uid}/finishedTodos`);
+    const allTaskRef = ref(db, `tasks`);
+
+    const unsubscribeUserTodos = onValue(userTodosRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      setTodos(Object.values(data));
+    });
+
+    const unsubscribeFinishTodos = onValue(finishTodosRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      setFinishTodos(Object.values(data));
+    });
+
+    const unSubscribeManagerTasks = onValue(allTaskRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      const filteredTasks = Object.entries(data)
+        .map(([id, task]) => ({ ...task, id }))
+        .filter((task) => task.assignedTo === user.uid);
+      setManagerTasks(filteredTasks);
+    });
+
+    return () => {
+      unsubscribeUserTodos();
+      unsubscribeFinishTodos();
+      unSubscribeManagerTasks();
     };
   }, [user]);
   useEffect(() => {
@@ -227,6 +275,18 @@ function App() {
     set(ref(db, `users/${user.uid}/finishedTodos`), []);
     showError("All Todos Deleted Successfully");
   };
+  const managerUserUIFinishedTask = async (taskId) => {
+    const db = getDatabase(app);
+    try {
+      await update(ref(db, `tasks/${taskId}`), {
+        status: "finished",
+        finishedAt: dayjs().format(),
+      });
+      console.log(`Task ${taskId} marked as finished.`);
+    } catch (error) {
+      console.log("Error for finish as mark button ", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -244,11 +304,16 @@ function App() {
     <>
       {!user ? (
         <>
-          <div className="auth-layout">
+          <motion.div
+            className="auth-layout"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             <div className="auth-card">
               {showLogin ? (
                 <>
-                  <Login showError={showError} />
+                  <Login showError={showError} setUserRole={setUserRole} />
                   <p>Don't have an account?</p>
                   <span
                     onClick={() => setShowLogin(false)}
@@ -275,58 +340,101 @@ function App() {
                 <ErrorMessage message={error} onClose={() => setError(null)} />
               )}
             </div>
-          </div>
+          </motion.div>
         </>
       ) : (
         <>
-          <div className="container">
-            {user && (
+          {userRole === "manager" ? (
+            <ManagerPanel user={user} />
+          ) : (
+            <motion.div
+              className="container"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
               <>
                 <div className="user-credentials">
                   <p className="userId">{`User Id: ${user.uid}`}</p>
-                  <h2 className="welcomeUser">{`Welcome: ${user.email}`}</h2>
+                  <h2 className="welcomeUser">{`Welcome: ${user.displayName}`}</h2>
+                  <h2 className="welcomeUser">{`User Email: ${user.email}`}</h2>
                 </div>
               </>
-            )}
-            <Addtodos onAdd={addTodos} showError={showError} />
 
-            <TodoList
-              todos={getCurrentTodos()}
-              sortOrder={sortOrder}
-              ontoggleSort={toggleSortOrder}
-              onDelete={deleteTodo}
-              onUpdate={updateTodo}
-              onFinish={finishTodo}
-              putData={putData}
-            />
-            <PaginateTODOS
-              todosPerPage={todosPerPage}
-              totalTodos={sortedTodos.length}
-              currentPage={currentPage}
-              paginate={paginate}
-            />
-            <CompletedTasks
-              sortOrder={finishTodosSortOrder}
-              finishedTodos={getCurrentFinishedTodos()}
-              onDelete={deleteFinishTodos}
-              onUnfinish={unFinishTodo}
-              putData={putData}
-              ontoggleSort={togglefinishTodosSortOrder}
-            />
-            <PaginateTODOS
-              todosPerPage={todosPerPage}
-              totalTodos={sortedTodosCompletedTaskSection.length}
-              currentPage={currentPage}
-              paginate={paginate}
-            />
-            <button onClick={deleteAllTodos} className="delete-all">
-              Delete All Todos. <small>Finished & Unfinished</small>
-            </button>
+              <Addtodos onAdd={addTodos} showError={showError} />
 
-            <button onClick={handleSignOut} className="auth-button">
-              Log Out
-            </button>
-          </div>
+              <TodoList
+                todos={getCurrentTodos()}
+                sortOrder={sortOrder}
+                ontoggleSort={toggleSortOrder}
+                onDelete={deleteTodo}
+                onUpdate={updateTodo}
+                onFinish={finishTodo}
+                putData={putData}
+              />
+              {/* for manager task  */}
+
+              {managerTasks.length > 0 && (
+                <div className="assigned-section">
+                  <h2>Tasks Assigned by Manager</h2>
+                  {managerTasks.map((task) => (
+                    <div key={task.id} className="task-item">
+                      <h3>{task.title}</h3>
+                      <p>{task.description}</p>
+                      <p>
+                        Created At:
+                        {dayjs(task.createdAt).format("YYYY-MM-DD HH:mm")}
+                      </p>
+                      {task.dueDate && (
+                        <p>
+                          Due Date:
+                          {dayjs(task.dueDate).format("YYYY-MM-DD HH:mm")}
+                        </p>
+                      )}
+                      <p>Status: {task.status}</p>
+                      {task.status !== "finished" && (
+                        <button
+                          className="finish-btn"
+                          onClick={() => managerUserUIFinishedTask(task.id)}
+                        >
+                          ✅ Mark As Finish
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {/* for manager task  */}
+              <PaginateTODOS
+                todosPerPage={todosPerPage}
+                totalTodos={sortedTodos.length}
+                currentPage={currentPage}
+                paginate={paginate}
+              />
+              <CompletedTasks
+                sortOrder={finishTodosSortOrder}
+                finishedTodos={getCurrentFinishedTodos()}
+                onDelete={deleteFinishTodos}
+                onUnfinish={unFinishTodo}
+                putData={putData}
+                ontoggleSort={togglefinishTodosSortOrder}
+              />
+              <PaginateTODOS
+                todosPerPage={todosPerPage}
+                totalTodos={sortedTodosCompletedTaskSection.length}
+                currentPage={currentPage}
+                paginate={paginate}
+              />
+              {todos.length > 0 || finishTodos.length > 0 ? (
+                <button onClick={deleteAllTodos} className="delete-all">
+                  Delete All Todos. <small>Finished & Unfinished</small>
+                </button>
+              ) : null}
+              <button onClick={handleSignOut} className="delete-all">
+                Log Out
+              </button>
+            </motion.div>
+          )}
         </>
       )}
     </>
