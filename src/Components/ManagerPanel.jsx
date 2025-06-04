@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import {
   getDatabase,
   ref,
@@ -6,6 +9,7 @@ import {
   set,
   remove,
   update,
+  Database,
   // query,
   // orderByValue,
   // equalTo,
@@ -21,6 +25,7 @@ const ManagerPanel = () => {
   const [selectedUser, setSelectedUser] = useState("");
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDesc, setTaskDesc] = useState("");
+  const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const db = getDatabase(app);
   // const [allUsers, setAllUsers] = useState([]);
   const managerId = auth.currentUser?.uid;
@@ -46,7 +51,7 @@ const ManagerPanel = () => {
           usersArray.push({ uid, name: profile.name, email: profile.email });
         }
       }
-      console.log(usersArray);
+      // console.log(usersArray);
       setUser(usersArray);
     });
     const tasksRef = ref(db, "tasks");
@@ -83,12 +88,36 @@ const ManagerPanel = () => {
   const deleteTask = (id) => {
     remove(ref(db, `tasks/${id}`));
   };
+
   const handleLogOut = async () => {
     try {
       await signOut(auth);
       console.log("Log out successfully");
     } catch (error) {
       console.log("Log out failed", error);
+    }
+  };
+  const pendingTask = tasks.filter(
+    (task) => task.assignedBy === managerId && task.status !== "finished"
+  );
+  const finishedTask = tasks.filter(
+    (task) => task.assignedBy === managerId && task.status === "finished"
+  );
+  const handleDeleteAllFinishedTasks = async () => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete all finished tasks"
+    );
+    if (!confirmDelete) return;
+    try {
+      const updates = {};
+      finishedTask.forEach((task) => {
+        updates[`tasks/${task.id}`] = null;
+      });
+      await update(ref(db), updates);
+      toast.success("All finished tasks deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting all finished tasks:", error);
+      toast.error(error.message);
     }
   };
   return (
@@ -129,11 +158,11 @@ const ManagerPanel = () => {
         </div>
         <div className="task-list-box">
           <h3 className="task-list-heading">All Tasks</h3>
-          {tasks
+          {pendingTask
             .filter((task) => task.assignedBy === managerId)
             .map((task) => (
-              <div className="task-item">
-                <div className="task-title">{task.title}</div>
+              <div key={task.id} className="task-item">
+                <div className="task-title">{`Your Task:${task.title}`}</div>
                 <div className="task-info">
                   Assign To:
                   {user.find((u) => u.uid === task.assignedTo)?.name ||
@@ -143,24 +172,74 @@ const ManagerPanel = () => {
                 {task.status !== "finished" && (
                   <div className="task-button">
                     <button
-                      className="finish-button"
-                      onClick={() => finishTask(task.id)}
-                    >
-                      Mark Finish
-                    </button>
-                    <button
                       className="delete-button"
                       onClick={() => deleteTask(task.id)}
                     >
                       Delete
                     </button>
+                    <button
+                      className="finish-button"
+                      onClick={() => finishTask(task.id)}
+                    >
+                      Finish Task
+                    </button>
                   </div>
                 )}
               </div>
             ))}
+          <div className="completed-task-section">
+            <h3
+              className="completed-task-heading"
+              onClick={() => setShowCompletedTasks(!showCompletedTasks)}
+            >
+              Completed Tasks By Employees
+              <span className="arrow">{showCompletedTasks ? "▲" : "▼"}</span>
+            </h3>
+            {showCompletedTasks && (
+              <>
+                {finishTask.length === 0 ? (
+                  <p>No task finished yet:</p>
+                ) : (
+                  finishedTask.map((task) => (
+                    <div key={task.id} className="task-item completed">
+                      <div className="task-title">{`Your Task: ${task.title}`}</div>
+                      <div className="task-info">
+                        👤 Assign To :
+                        {user.find((u) => u.uid === task.assignedTo)?.name ||
+                          "unknown"}
+                      </div>
+                      <div className="task-info">✅ Status: {task.status}</div>
+                      <div className="task-info">
+                        ⏰ Finished At:
+                        {dayjs(task.finishedAt).format("DD MMM YYYY, h:mm A")},
+                      </div>
+                      <button className="report-btn">🚩 Report</button>
+                      <button
+                        className="deletee-btn"
+                        onClick={() => deleteTask(task.id)}
+                      >
+                        🗑️ delete
+                      </button>
+                    </div>
+                  ))
+                )}
+              </>
+            )}
+            {finishedTask.length > 0 && (
+              <button
+                className="delete-all-manager-completed-portion"
+                onClick={handleDeleteAllFinishedTasks}
+              >
+                🧹 Delete All Tasks
+                <small>Delete only all finished tasks</small>
+              </button>
+            )}
+          </div>
         </div>
+
         <button onClick={handleLogOut}>Log Out</button>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
     </>
   );
 };

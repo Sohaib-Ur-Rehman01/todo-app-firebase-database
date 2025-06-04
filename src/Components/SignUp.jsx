@@ -4,6 +4,8 @@ import { getDatabase, set, ref, onValue } from "firebase/database";
 import { auth } from "./firebase";
 import { app } from "./firebase";
 import dayjs from "dayjs";
+import { toast } from "react-toastify";
+
 const db = getDatabase(app);
 const SignUp = ({ showError }) => {
   const [name, setName] = useState("");
@@ -47,6 +49,7 @@ const SignUp = ({ showError }) => {
         ).length;
         if (managerCount >= 2) {
           showError("Only 2 Managers are allowed.");
+          toast.error("Only 2 Mangers are allowed");
           // delete user if already created
           await user.delete();
           return;
@@ -57,6 +60,7 @@ const SignUp = ({ showError }) => {
       showError("Sign Up Successful!");
     } catch (error) {
       showError(error.message);
+      toast.error(error.message);
     }
   };
   return (

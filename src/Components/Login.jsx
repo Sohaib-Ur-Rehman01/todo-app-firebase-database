@@ -3,6 +3,8 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { getDatabase, get, ref } from "firebase/database";
 import { app } from "./firebase";
 import { auth } from "./firebase";
+import { toast } from "react-toastify";
+
 const db = getDatabase(app);
 const Login = ({ showError }) => {
   const [name, setName] = useState("");
@@ -23,8 +25,10 @@ const Login = ({ showError }) => {
         console.log("UserName from DB", userData.name);
       }
       showError("Login Successful!");
+      toast.success("Login Successfully");
     } catch (error) {
       showError(error.message);
+      toast.error(error.message);
     }
   };
   return (
