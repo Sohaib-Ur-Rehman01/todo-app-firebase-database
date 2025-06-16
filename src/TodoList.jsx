@@ -10,7 +10,7 @@ const TodoList = ({
   return (
     <>
       <div className="todo-list-header">
-        <h2>Todos</h2>
+        <h2>Personal Task</h2>
         {todos.length > 0 && (
           <button className="sort-button" onClick={ontoggleSort}>
             Sort by Due Date {sortOrder === "asc" ? "↑ Asc" : "↓ Desc"}

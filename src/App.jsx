@@ -32,6 +32,7 @@ function App() {
   const [currentPage, SetCurrentPage] = useState(1);
   const [userRole, setUserRole] = useState(null);
   const [managerTasks, setManagerTasks] = useState([]);
+
   const todosPerPage = 10;
   const getCurrentTodos = () => {
     const indexOfLastTodo = currentPage * todosPerPage;
@@ -73,18 +74,28 @@ function App() {
       setUser(currentUser);
       if (currentUser) {
         const roleRef = ref(db, `users/${currentUser.uid}/profile/role`);
-        onValue(roleRef, (snapshot) => {
-          const role = snapshot.val();
-          console.log(
-            "Fetch Role",
-            role,
-            "for Path ======>>",
-            `users/${currentUser.uid}/profile/role`
-          );
-          setUserRole(role);
-        });
+        onValue(
+          roleRef,
+          (snapshot) => {
+            const role = snapshot.val();
+            console.log(
+              "Fetch Role",
+              role,
+              "for Path ======>>",
+              `users/${currentUser.uid}/profile/role`
+            );
+            setUserRole(role || "user");
+            setLoading(false);
+          },
+          (error) => {
+            console.error("Error fetching role:", error);
+            setUserRole("user");
+            setLoading(false);
+          }
+        );
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     });
     return () => unSubscribe();
   }, []);
@@ -291,9 +302,11 @@ function App() {
   if (loading) {
     return (
       <>
-        <div className="loadin-screen">
-          <div className="loading-spinner">
-            {/* <h2 style={{ textAlign: "center" }}>Loading...</h2> */}
+        <div className="loaderContainer">
+          <div className="loader">
+            <div className="loaderDot"></div>
+            <div className="loaderDot"></div>
+            <div className="loaderDot"></div>
           </div>
         </div>
       </>
@@ -376,22 +389,26 @@ function App() {
 
               {managerTasks.length > 0 && (
                 <div className="assigned-section">
-                  <h2>Tasks Assigned by Manager</h2>
+                  <h2>📋 Tasks Assigned by Manager</h2>
                   {managerTasks.map((task) => (
                     <div key={task.id} className="task-item">
-                      <h3>{task.title}</h3>
-                      <p>{task.description}</p>
+                      <h3 className="task-title">
+                        📌 {`Your task is: ${task.title}`}
+                      </h3>
+                      <p className="task-description">
+                        📄 {`Description: ${task.description}`}
+                      </p>
                       <p>
-                        Created At:
+                        ⏱️ Created At:
                         {dayjs(task.createdAt).format("YYYY-MM-DD HH:mm")}
                       </p>
                       {task.dueDate && (
                         <p>
-                          Due Date:
+                          ⏰ Due Date:
                           {dayjs(task.dueDate).format("YYYY-MM-DD HH:mm")}
                         </p>
                       )}
-                      <p>Status: {task.status}</p>
+                      <p>🟫 Status: {task.status}</p>
                       {task.status !== "finished" && (
                         <button
                           className="finish-btn"

@@ -1,0 +1,508 @@
+.manager-chat-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+.search-bar {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+}
+.user-list {
+  padding: 0;
+}
+.chat-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.chat-toggle-button {
+  background: #4e44ce;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.chat-toggle-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.chat-bubble {
+  position: relative;
+  color: white;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ff4757;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.chat-box {
+  width: 350px;
+  height: 500px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-header {
+  padding: 16px;
+  background: #4e44ce;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.status {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background: #f5f5f9;
+}
+
+.message {
+  display: flex;
+  margin-bottom: 16px;
+  max-width: 80%;
+}
+
+.message.sent {
+  margin-left: auto;
+  flex-direction: row-reverse;
+}
+
+.message.received {
+  margin-right: auto;
+}
+
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  align-self: flex-end;
+}
+
+.message.sent .message-avatar {
+  margin-right: 0;
+  margin-left: 8px;
+}
+
+.message-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.message.sent .message-content {
+  align-items: flex-end;
+}
+
+.message-content p {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.message.sent .message-content p {
+  background: #4e44ce;
+  color: white;
+  border-top-right-radius: 4px;
+}
+
+.message.received .message-content p {
+  background: white;
+  color: #333;
+  border-top-left-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.message-time {
+  font-size: 11px;
+  color: #999;
+  margin-top: 4px;
+}
+
+.chat-input {
+  display: flex;
+  padding: 12px;
+  background: white;
+  border-top: 1px solid #eee;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+  font-size: 14px;
+}
+
+.chat-input button {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.send-button {
+  color: #4e44ce !important;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+  text-align: center;
+}
+
+/* Manager Chat Styles */
+
+.conversation-list {
+  width: 300px;
+  border-right: 1px solid #eee;
+  background: white;
+  overflow-y: auto;
+}
+
+.user-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.user-item:hover {
+  background: #f9f9f9;
+}
+
+.user-item.Mui-selected {
+  background: #f0f0ff;
+}
+
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f9;
+}
+
+.no-conversation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+  text-align: center;
+}
+
+.illustration {
+  margin-bottom: 16px;
+}
+
+.chat-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+}
+.manager-panel-container {
+  display: flex;
+}
+.manager-container {
+  padding: 24px;
+  background-color: #f7f9fb;
+  min-height: 100vh;
+}
+
+.manager-heading {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.assign-task-box,
+.task-list-box {
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.assign-title,
+.task-list-heading {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: black;
+}
+
+.input-field {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  color: black;
+}
+
+.primary-button {
+  padding: 10px 16px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.task-item {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  word-break: break-word;
+}
+
+.task-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: black;
+  word-break: break-word;
+}
+
+.task-info {
+  font-size: 13px;
+  color: #555;
+}
+
+.task-buttons {
+  /* Top-right button container */
+
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+.finish-button {
+  color: #10b981;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-right: 12px;
+}
+
+.delete-button {
+  color: #ef4444;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.completed-task-section {
+  margin-top: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  transition: all 0.3s ease-in-out;
+}
+
+.completed-task-heading {
+  font-size: 1.4rem;
+  margin-bottom: 16px;
+  color: #00ffcc;
+  /* text-shadow: 0 0 5px #00ffcc; */
+  cursor: pointer;
+}
+
+.task-item.completed {
+  display: flex;
+  flex-wrap: wrap; /* allow wrapping on smaller screens */
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  position: relative;
+}
+
+.task-title {
+  font-weight: bold;
+  font-size: 18px;
+  color: black;
+  background-color: #3b82f6;
+  margin-bottom: 6px;
+  word-break: break-word;
+  flex: 1 1 60%; /* Take most of the width on larger screens */
+}
+
+.task-info {
+  font-size: 14px;
+  color: #cccccc;
+  margin: 4px 0;
+  flex: 1 1 100%; /* take full width on small screens */
+}
+
+/* Container for buttons aligned top-right */
+.task-buttons-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+/* Smaller buttons */
+.deletee-btn,
+.report-btn {
+  background: rgba(244, 67, 54, 0.6); /* red default, override below */
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+  backdrop-filter: blur(6px);
+  width: 90px;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 14px;
+}
+
+.report-btn {
+  background: rgba(255, 193, 7, 0.6); /* Yellow */
+  color: black;
+}
+
+.deletee-btn:hover {
+  background: rgba(244, 67, 54, 0.9);
+}
+
+.report-btn:hover {
+  background: rgba(255, 193, 7, 0.9);
+}
+
+/* Responsive for small screens */
+@media (max-width: 480px) {
+  .task-title {
+    font-size: 16px;
+  }
+  .deletee-btn,
+  .report-btn {
+    width: 80px;
+    padding: 5px 8px;
+    font-size: 13px;
+  }
+  .task-buttons-container {
+    position: static;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 320px) {
+  .task-item.completed {
+    padding: 15px 10px;
+  }
+  .task-title {
+    font-size: 14px;
+    flex-basis: 100%;
+  }
+  .task-info {
+    font-size: 12px;
+  }
+  .deletee-btn,
+  .report-btn {
+    width: 70px;
+    padding: 4px 6px;
+    font-size: 12px;
+  }
+  .task-buttons-container {
+    flex-direction: row;
+    gap: 6px;
+    position: static;
+    margin-top: 8px;
+  }
+}
+/* \\\\\\\\\\\\\\\\\Manager panel delete all finished tasks\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */
