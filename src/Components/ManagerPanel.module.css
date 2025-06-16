@@ -150,6 +150,9 @@ body {
     text-overflow: ellipsis;
   }
 }
+.labelForLength {
+  color: #5d48d9;
+}
 
 .del-report-btn {
   display: flex;

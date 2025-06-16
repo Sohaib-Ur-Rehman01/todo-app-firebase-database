@@ -73,6 +73,9 @@ const SignUp = ({ showError }) => {
           className="auth-input"
           onChange={(e) => setName(e.target.value)}
           value={name}
+          minLength={2}
+          maxLength={30}
+          required
         />
         <input
           type="email"
@@ -80,6 +83,9 @@ const SignUp = ({ showError }) => {
           id="signUpInput"
           className="auth-input"
           onChange={(e) => setEmail(e.target.value)}
+          minLength={6}
+          maxLength={50}
+          required
         />
         <input
           type="password"
@@ -88,11 +94,14 @@ const SignUp = ({ showError }) => {
           onChange={(e) => setPassword(e.target.value)}
           className="auth-input"
           onKeyDown={(e) => (e.key === "Enter" ? handleSignUp() : null)}
+          minLength={8}
+          maxLength={15}
+          required
         />
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="auth-input"
+          className="auth-inputUserMangaer"
         >
           <option value="user">Regular User</option>
           <option value="manager">Manager</option>

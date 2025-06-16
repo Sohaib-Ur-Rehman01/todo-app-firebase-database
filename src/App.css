@@ -456,13 +456,24 @@ button:active {
 }
 
 .auth-input {
-  width: 93%;
+  width: 100%;
   padding: 1rem;
   margin-bottom: 1.2rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
-  color: white;
+  /* color: white; */
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+.auth-inputUserMangaer {
+  width: 100%;
+  padding: 1rem;
+  margin-bottom: 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: white;
+  /* color: white; */
   font-size: 1rem;
   transition: all 0.3s ease;
 }

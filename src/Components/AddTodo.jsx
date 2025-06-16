@@ -32,7 +32,11 @@ const Addtodos = ({ onAdd, showError }) => {
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && handleAdd()}
           onKeyDown={handleKeyDown}
+          min={2}
+          maxLength={50}
+          required
         />
+        <p>Maximum Length 5 words</p>
         <input
           type="datetime-local"
           value={dueDate}

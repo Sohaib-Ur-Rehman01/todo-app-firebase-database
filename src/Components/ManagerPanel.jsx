@@ -193,13 +193,24 @@ const ManagerPanel = () => {
                   className={styles["input-field"]}
                   value={taskTitle}
                   onChange={(e) => setTaskTitle(e.target.value)}
+                  minLength={2}
+                  maxLength={50}
+                  required
                 />
+                <label htmlFor="Length" className={styles["labelForLength"]}>
+                  Maximum Length 50 words
+                </label>
                 <textarea
                   placeholder="Task Description"
                   className={styles["input-field"]}
                   value={taskDesc}
                   onChange={(e) => setTaskDesc(e.target.value)}
+                  minLength={2}
+                  maxLength={100}
                 />
+                <label htmlFor="Length" className={styles["labelForLength"]}>
+                  Maximum Length 100 words
+                </label>
                 <input
                   type="datetime-local"
                   className={styles["input-field"]}
