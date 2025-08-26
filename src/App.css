@@ -43,6 +43,7 @@ body {
   max-width: 800px;
   margin: 0 auto;
   /* min-height: 100vh; */
+  border: 10px solid lime;
 }
 
 /* Glassmorphism container */
