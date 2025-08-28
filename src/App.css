@@ -43,7 +43,7 @@ body {
   max-width: 800px;
   margin: 0 auto;
   /* min-height: 100vh; */
-  border: 10px solid lime;
+  /* border: 10px solid lime; */
 }
 
 /* Glassmorphism container */
@@ -64,6 +64,8 @@ body {
 
 /* Input field */
 .input-group {
+  position: relative;
+
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -86,6 +88,23 @@ input:focus {
   border-color: var(--neon-blue);
   box-shadow: 0 0 0 2px rgba(0, 245, 255, 0.3);
 }
+.calendar-icon-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  left: 83%;
+  width: 10%;
+  height: 9vh;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+  /* margin-top: -10px; */
+  align-self: flex-start;
+  transition: transform 0.2s ease;
+}
+
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////// */
@@ -845,6 +864,8 @@ button:active {
   margin: 10px 0;
   border-radius: 8px;
   cursor: pointer;
+  border: 1px solid lime;
+  width: 200px;
 }
 .signuplogin {
   color: blue;

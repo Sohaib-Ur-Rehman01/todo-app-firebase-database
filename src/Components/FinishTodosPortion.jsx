@@ -9,6 +9,7 @@ const CompletedTasks = ({
   onUnfinish,
   ontoggleSort,
   sortOrder,
+  showSortButton,
 }) => {
   return (
     <>
@@ -74,7 +75,7 @@ const CompletedTasks = ({
               );
             })
           )}
-          {finishedTodos.length > 0 && (
+          {showSortButton && finishedTodos.length > 0 && (
             <button onClick={ontoggleSort} className="sort-button">
               Sort by Completed Time {sortOrder === "asc" ? "↑ Asc" : "↓ Desc"}
             </button>

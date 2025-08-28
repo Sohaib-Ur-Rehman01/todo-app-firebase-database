@@ -1,9 +1,13 @@
 // import { set } from "firebase/database";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { FaRegCalendarAlt } from "react-icons/fa";
+
 const Addtodos = ({ onAdd, showError }) => {
   const [input, setInput] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const dateInputRef = useRef(null);
+
   const inputFirstLetterCapital = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
@@ -15,7 +19,7 @@ const Addtodos = ({ onAdd, showError }) => {
       return;
     }
     const capitalizedInputFirstWord = inputFirstLetterCapital(input);
-    onAdd(capitalizedInputFirstWord, dueDate);
+    onAdd(capitalizedInputFirstWord, dueDate || "");
     setInput("");
     setDueDate("");
   };
@@ -36,16 +40,26 @@ const Addtodos = ({ onAdd, showError }) => {
           maxLength={50}
           required
         />
-        <p>Maximum Length 5 words</p>
+        <p>Minimum Length 5 words</p>
         <input
           type="datetime-local"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
-          id="dateInput"
+          // id="dateInput"
+          className="hello"
+          ref={dateInputRef}
           onKeyDown={handleKeyDown}
           placeholder="Due Date"
+          style={{ display: "none" }}
         />
-        <label htmlFor="dateInput">Enter Due Date and Time</label>
+        {/* Calendar Icon instead of input */}
+        <button
+          type="button"
+          className="calendar-icon-btn"
+          onClick={() => dateInputRef.current.showPicker()}
+        >
+          <FaRegCalendarAlt size={20} />
+        </button>
       </div>
       <button onClick={handleAdd}>Add Todo</button>
     </>

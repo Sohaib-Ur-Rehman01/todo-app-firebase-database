@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 const db = getDatabase(app);
 const Login = ({ showError }) => {
-  const [name, setName] = useState("");
+  // const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const handleLogin = async () => {
@@ -21,7 +21,7 @@ const Login = ({ showError }) => {
       const snapshot = await get(ref(db, `users/${user.uid}/profile`));
       if (snapshot.exists()) {
         const userData = snapshot.val();
-        setName(userData.name);
+        // setName(userData.name);
         console.log("UserName from DB", userData.name);
       }
       showError("Login Successful!");
@@ -35,13 +35,13 @@ const Login = ({ showError }) => {
     <>
       <div className="auth-container">
         <h2>Login</h2>
-        <input
+        {/* <input
           type="text"
           placeholder="Enter Your Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="auth-input"
-        />
+        /> */}
         <input
           type="email"
           placeholder="Enter Your Email"

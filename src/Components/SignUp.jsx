@@ -98,14 +98,14 @@ const SignUp = ({ showError }) => {
           maxLength={15}
           required
         />
-        <select
+        {/* <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
           className="auth-inputUserMangaer"
         >
           <option value="user">Regular User</option>
           <option value="manager">Manager</option>
-        </select>
+        </select> */}
         <button className="auth-button" onClick={handleSignUp}>
           Sign Up
         </button>

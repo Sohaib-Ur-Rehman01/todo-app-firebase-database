@@ -18,9 +18,14 @@ import ErrorMessage from "./Components/ErrorBox";
 import PaginateTODOS from "./Components/Paginate";
 import ManagerPanel from "./Components/ManagerPanel";
 import { motion } from "framer-motion";
+// Firebase setup
+
 const db = getDatabase(app);
 const auth = getAuth(app);
 function App() {
+  /** =========================
+   *  State Management
+   *  ========================= */
   const [todos, setTodos] = useState([]);
   const [finishTodos, setFinishTodos] = useState([]);
   const [user, setUser] = useState(null);
@@ -32,8 +37,28 @@ function App() {
   const [currentPage, SetCurrentPage] = useState(1);
   const [userRole, setUserRole] = useState(null);
   const [managerTasks, setManagerTasks] = useState([]);
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const [includeCompleted, setIncludeCompleted] = useState(false);
   const todosPerPage = 10;
+  /** =========================
+   *  Search Logic
+   *  ========================= */
+  const searchedActiveTodos = todos.filter((todo) =>
+    todo.text.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  // Filter completed todos only if "Include Completed" is checked
+  const searchedCompletedTodos = includeCompleted
+    ? finishTodos.filter((todo) =>
+        todo.text.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
+  // Final list to render
+  const hasSearch = searchTerm.trim() !== "";
+  const searchResults = includeCompleted
+    ? [...searchedActiveTodos, ...searchedCompletedTodos]
+    : searchedActiveTodos;
+  // const finalCompletedTodos = includeCompleted ? filterCompletedTodos : [];
+
   const getCurrentTodos = () => {
     const indexOfLastTodo = currentPage * todosPerPage;
     const indexOfFirstTodo = indexOfLastTodo - todosPerPage;
@@ -47,11 +72,22 @@ function App() {
       indexOfLastTodo
     );
   };
+
+  /** =========================
+   *  Pagination Logic
+   *  ========================= */
   const paginate = (pageNumber) => SetCurrentPage(pageNumber);
+
+  /** =========================
+   *  Error Handler
+   *  ========================= */
   const showError = (message) => {
     setError(message);
     setTimeout(() => setError(null), 5000);
   };
+  /** =========================
+   *  Sorting Logic
+   *  ========================= */
   const toggleSortOrder = () => {
     setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
   };
@@ -69,6 +105,9 @@ function App() {
     const dateB = dayjs(b.finishedAt);
     return finishTodosSortOrder === "asc" ? dateA - dateB : dateB - dateA;
   });
+  /** =========================
+   *  Firebase Auth
+   *  ========================= */
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -169,7 +208,9 @@ function App() {
       SetCurrentPage(1);
     }
   }, [todos, finishTodos]);
-
+  /** =========================
+   *  CRUD Functions
+   *  ========================= */
   const putData = () => {
     if (!user) return;
     set(ref(db, `users/${user.uid}/todos`), todos);
@@ -298,6 +339,9 @@ function App() {
       console.log("Error for finish as mark button ", error);
     }
   };
+  /** =========================
+   *  Render
+   *  ========================= */
 
   if (loading) {
     return (
@@ -375,8 +419,28 @@ function App() {
               </>
 
               <Addtodos onAdd={addTodos} showError={showError} />
+              {/* ✅ Search + Checkbox UI */}
+              <div className="search-bar">
+                <input
+                  type="text"
+                  placeholder="Search todos..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={includeCompleted}
+                    onChange={() => setIncludeCompleted((prev) => !prev)}
+                  />
+                  Include Completed Todos
+                </label>
+              </div>
 
-              <TodoList
+              {/* ✅ Search + Checkbox UI */}
+
+              {/* <TodoList
                 todos={getCurrentTodos()}
                 sortOrder={sortOrder}
                 ontoggleSort={toggleSortOrder}
@@ -385,6 +449,97 @@ function App() {
                 onFinish={finishTodo}
                 putData={putData}
               />
+
+              {includeCompleted && searchTerm.trim() !== "" && (
+                <CompletedTasks
+                  sortOrder={finishTodosSortOrder}
+                  finishedTodos={finalCompletedTodos}
+                  onDelete={deleteFinishTodos}
+                  onUnfinish={unFinishTodo}
+                  putData={putData}
+                  ontoggleSort={togglefinishTodosSortOrder}
+                  showSortButton={false}
+                />
+              )} */}
+              {/* If user is searching */}
+
+              {/* ✅ Conditional Rendering Based on Search State */}
+              {hasSearch ? (
+                // ========================
+                // 🔎 Search Mode
+                // ========================
+                searchResults.length > 0 ? (
+                  <>
+                    <TodoList
+                      todos={searchedActiveTodos}
+                      sortOrder={sortOrder}
+                      ontoggleSort={toggleSortOrder}
+                      onDelete={deleteTodo}
+                      onUpdate={updateTodo}
+                      onFinish={finishTodo}
+                      putData={putData}
+                    />
+
+                    {includeCompleted && searchedCompletedTodos.length > 0 && (
+                      <CompletedTasks
+                        finishedTodos={searchedCompletedTodos}
+                        sortOrder={finishTodosSortOrder}
+                        onDelete={deleteFinishTodos}
+                        onUnfinish={unFinishTodo}
+                        putData={putData}
+                        ontoggleSort={togglefinishTodosSortOrder}
+                        showSortButton={false}
+                      />
+                    )}
+                  </>
+                ) : (
+                  <p className="not-found">Todos not found ❌</p>
+                )
+              ) : (
+                // ========================
+                // 📝 Normal Mode
+                // ========================
+                <>
+                  <TodoList
+                    todos={getCurrentTodos()}
+                    sortOrder={sortOrder}
+                    ontoggleSort={toggleSortOrder}
+                    onDelete={deleteTodo}
+                    onUpdate={updateTodo}
+                    onFinish={finishTodo}
+                    putData={putData}
+                  />
+
+                  {sortedTodos.length > todosPerPage && (
+                    <PaginateTODOS
+                      todosPerPage={todosPerPage}
+                      totalTodos={sortedTodos.length}
+                      currentPage={currentPage}
+                      paginate={paginate}
+                    />
+                  )}
+
+                  <CompletedTasks
+                    finishedTodos={getCurrentFinishedTodos()}
+                    sortOrder={finishTodosSortOrder}
+                    onDelete={deleteFinishTodos}
+                    onUnfinish={unFinishTodo}
+                    putData={putData}
+                    ontoggleSort={togglefinishTodosSortOrder}
+                    showSortButton={true}
+                  />
+
+                  {sortedTodosCompletedTaskSection.length > todosPerPage && (
+                    <PaginateTODOS
+                      todosPerPage={todosPerPage}
+                      totalTodos={sortedTodosCompletedTaskSection.length}
+                      currentPage={currentPage}
+                      paginate={paginate}
+                    />
+                  )}
+                </>
+              )}
+
               {/* for manager task  */}
 
               {managerTasks.length > 0 && (
@@ -422,7 +577,7 @@ function App() {
                 </div>
               )}
               {/* for manager task  */}
-              <PaginateTODOS
+              {/* <PaginateTODOS
                 todosPerPage={todosPerPage}
                 totalTodos={sortedTodos.length}
                 currentPage={currentPage}
@@ -430,18 +585,19 @@ function App() {
               />
               <CompletedTasks
                 sortOrder={finishTodosSortOrder}
-                finishedTodos={getCurrentFinishedTodos()}
+                finishedTodos={getCurrentFinishedTodos()} // ✅ full completed todos (paginated)
                 onDelete={deleteFinishTodos}
                 onUnfinish={unFinishTodo}
                 putData={putData}
                 ontoggleSort={togglefinishTodosSortOrder}
+                showSortButton={true} // ✅ permanent section me sort dikhana
               />
               <PaginateTODOS
                 todosPerPage={todosPerPage}
                 totalTodos={sortedTodosCompletedTaskSection.length}
                 currentPage={currentPage}
                 paginate={paginate}
-              />
+              /> */}
               {todos.length > 0 || finishTodos.length > 0 ? (
                 <button onClick={deleteAllTodos} className="delete-all">
                   Delete All Todos. <small>Finished & Unfinished</small>
