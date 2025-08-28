@@ -223,7 +223,7 @@ function App() {
       id: Date.now(),
       text: inputText,
       createdAt: dayjs().format(),
-      dueDate: userDueDate || dayjs().add(2, "seconds").format(),
+      dueDate: userDueDate || null,
     };
     const updatedTodos = [...todos, newTodo];
     setTodos(updatedTodos);
@@ -233,6 +233,9 @@ function App() {
   };
   const deleteTodo = (id) => {
     if (!user) return;
+    if (!window.confirm("Are you sure you want to delete this todo?")) {
+      return;
+    }
     const updatedTodos = todos.filter((todo) => todo.id !== id);
     setTodos(updatedTodos);
     set(ref(db, `users/${user.uid}/todos`), updatedTodos);
@@ -305,6 +308,11 @@ function App() {
   };
   const deleteFinishTodos = (id) => {
     if (!user) return;
+    if (
+      !window.confirm("Are you sure you want to delete this completed todo?")
+    ) {
+      return;
+    }
     const updateDeleteFinishTodos = finishTodos.filter(
       (todo) => todo.id !== id
     );
@@ -321,6 +329,13 @@ function App() {
     }
   };
   const deleteAllTodos = () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete ALL todos? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
     setTodos([]);
     setFinishTodos([]);
     set(ref(db, `users/${user.uid}/todos`), []);
@@ -416,29 +431,32 @@ function App() {
                   <h2 className="welcomeUser">{`Welcome: ${user.displayName}`}</h2>
                   <h2 className="welcomeUser">{`User Email: ${user.email}`}</h2>
                 </div>
+                {/* ✅ Search + Checkbox UI */}
+                <div className="search-bar">
+                  <input
+                    type="text"
+                    placeholder="Search todos..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="search-input"
+                  />
+                  <div className="label-container">
+                    <input
+                      type="checkbox"
+                      checked={includeCompleted}
+                      onChange={() => setIncludeCompleted((prev) => !prev)}
+                    />
+
+                    <label className="checkbox-label">
+                      Include Completed Todos
+                    </label>
+                  </div>
+                </div>
+
+                {/* ✅ Search + Checkbox UI */}
               </>
 
               <Addtodos onAdd={addTodos} showError={showError} />
-              {/* ✅ Search + Checkbox UI */}
-              <div className="search-bar">
-                <input
-                  type="text"
-                  placeholder="Search todos..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-                />
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={includeCompleted}
-                    onChange={() => setIncludeCompleted((prev) => !prev)}
-                  />
-                  Include Completed Todos
-                </label>
-              </div>
-
-              {/* ✅ Search + Checkbox UI */}
 
               {/* <TodoList
                 todos={getCurrentTodos()}
@@ -598,14 +616,17 @@ function App() {
                 currentPage={currentPage}
                 paginate={paginate}
               /> */}
-              {todos.length > 0 || finishTodos.length > 0 ? (
-                <button onClick={deleteAllTodos} className="delete-all">
-                  Delete All Todos. <small>Finished & Unfinished</small>
+              <div className="two-buttons">
+                {todos.length > 0 || finishTodos.length > 0 ? (
+                  <button onClick={deleteAllTodos} className="delete-all">
+                    Delete All Todos. <small>Finished & Unfinished</small>
+                  </button>
+                ) : null}
+
+                <button onClick={handleSignOut} className="delete-all">
+                  Log Out
                 </button>
-              ) : null}
-              <button onClick={handleSignOut} className="delete-all">
-                Log Out
-              </button>
+              </div>
             </motion.div>
           )}
         </>

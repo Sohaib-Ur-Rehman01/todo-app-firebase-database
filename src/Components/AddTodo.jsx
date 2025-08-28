@@ -19,7 +19,7 @@ const Addtodos = ({ onAdd, showError }) => {
       return;
     }
     const capitalizedInputFirstWord = inputFirstLetterCapital(input);
-    onAdd(capitalizedInputFirstWord, dueDate || "");
+    onAdd(capitalizedInputFirstWord, dueDate || null);
     setInput("");
     setDueDate("");
   };

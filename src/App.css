@@ -93,9 +93,9 @@ input:focus {
   justify-content: center;
   align-items: center;
   position: absolute;
-  left: 83%;
-  width: 10%;
-  height: 9vh;
+  left: 86%;
+  width: max-content;
+  height: max-content;
   background: none;
   border: none;
   cursor: pointer;
@@ -371,6 +371,7 @@ button:active {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
   color: #ffffff; /* text color */
   margin-top: 1rem;
+  /* border: 1px solid lime; */
 }
 
 .buttons-group {
@@ -864,7 +865,7 @@ button:active {
   margin: 10px 0;
   border-radius: 8px;
   cursor: pointer;
-  border: 1px solid lime;
+  /* border: 1px solid lime; */
   width: 200px;
 }
 .signuplogin {
@@ -895,7 +896,32 @@ button:active {
   animation: slideIn 0.3s ease-out forwards;
   gap: 1rem;
 }
-
+.two-buttons {
+  /* border: 1px solid lime; */
+  display: flex;
+  justify-content: space-around;
+  /* align-items: center; */
+}
+.search-bar {
+  display: flex;
+  gap: 100px;
+  justify-content: space-around;
+  align-items: center;
+  margin: 0px 0px 20px;
+}
+.checkbox-label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.checkbox-label {
+  font-size: 10px;
+}
+.label-container {
+  /* border: 1px solid lime; */
+  display: flex;
+  gap: 30px;
+}
 @keyframes slideIn {
   from {
     transform: translateX(100%);
@@ -1185,6 +1211,10 @@ textarea.input-field {
   font-family: "Space Grotesk", sans-serif;
   text-transform: uppercase;
   letter-spacing: 1px;
+  width: 200px;
+  /* display: flex; */
+  /* flex-direction: c; */
+  /* border: 1px solid lime; */
 }
 
 /* .delete-all:hover {
